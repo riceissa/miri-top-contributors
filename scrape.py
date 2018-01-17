@@ -30,7 +30,9 @@ def main():
     cnx.close()
 
     # Now get the up-to-date top contributors info.
-    response = requests.get("https://intelligence.org/topcontributors/",
+    url = "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/"
+    # url = "https://intelligence.org/topcontributors/"
+    response = requests.get(url,
                             headers={'User-Agent': 'Mozilla/5.0 '
                                      '(X11; Linux x86_64) AppleWebKit/537.36 '
                                      '(KHTML, like Gecko) '
