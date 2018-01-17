@@ -17,19 +17,12 @@ IGNORED_DONORS = {
 
 
 SNAPSHOTS = [
-    "https://web.archive.org/web/20140403110808/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20140625101856/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20141116233057/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20150107070310/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20150405093831/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20150529195536/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20150717030404/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20150925051425/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20160115113719/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20160304081836/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20160519132619/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20160717181525/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20161015133929/https://intelligence.org/topdonors/",
+    "https://web.archive.org/web/20150117213932/https://intelligence.org/donortools/topdonors.php",
+    "https://web.archive.org/web/20150507195856/https://intelligence.org/donortools/topdonors.php",
+    "https://web.archive.org/web/20150717072918/https://intelligence.org/donortools/topdonors.php",
+    "https://web.archive.org/web/20160115172820/https://intelligence.org/donortools/topdonors.php",
+    "https://web.archive.org/web/20160226145912/https://intelligence.org/donortools/topdonors.php",
+    "https://web.archive.org/web/20160717181643/https://intelligence.org/donortools/topdonors.php",
     "https://web.archive.org/web/20170204024838/https://intelligence.org/topdonors/",
     "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
@@ -70,8 +63,8 @@ def top_contributors(url):
                                      'Chrome/63.0.3239.132 Safari/537.36'})
     soup = BeautifulSoup(response.content, "lxml")
     contributors = {}
-    for tbody in soup.find_all("tbody"):
-        for tr in tbody.find_all("tr"):
+    for table in soup.find_all("table"):
+        for tr in table.find_all("tr"):
             cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
             donor = cols[0]
             amount = cols[1].replace("$", "").replace(",", "")
