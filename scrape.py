@@ -98,7 +98,7 @@ def diff_and_print(older, newer):
             first = False
         elif diff < -0.01 and donor in newer:
             print("Amount in older exceeds amount in newer:",
-                  donor, newer[donor], older[donor], file=sys.stderr)
+                  donor, older[donor], ">", newer[donor], file=sys.stderr)
     print(";")
 
 
