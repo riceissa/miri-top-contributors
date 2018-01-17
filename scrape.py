@@ -59,9 +59,9 @@ def main():
             # We have a new donation to process
             print(("    " if first else "    ,") + sql_tuple(donor, diff))
             first = False
-        elif diff < -0.01:
-            raise ValueError("Amount in DLW database exceeds MIRI top "
-                             "contributors amount")
+        elif diff < -0.01 and donor in top_contributors:
+            raise ValueError(("Amount in DLW database exceeds MIRI top "
+                             "contributors amount", donor))
     print(";")
 
 
