@@ -27,6 +27,8 @@ SNAPSHOTS = [
     "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20171003083300/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20171223071315/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20180117010054/https://intelligence.org/topcontributors/",
 ]
 
