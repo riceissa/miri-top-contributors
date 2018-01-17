@@ -97,8 +97,8 @@ def diff_and_print(older, newer):
             print(("    " if first else "    ,") + sql_tuple(donor, diff))
             first = False
         elif diff < -0.01 and donor in newer:
-            raise ValueError(("Amount in DLW database exceeds MIRI top "
-                             "contributors amount", donor))
+            print("Amount in older exceeds amount in newer:",
+                  donor, newer[donor], older[donor], file=sys.stderr)
     print(";")
 
 
