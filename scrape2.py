@@ -160,6 +160,8 @@ def snapshot_date(url):
 def donor_normalized(x):
     if x == "Johan Edstr\u0e23\u0e16m":
         return "Johan Edström"
+    if x == "Marius van Voorden (via Bitcoin)":
+        return "Marius van Voorden"
     return x
 
 
