@@ -3,10 +3,8 @@
 
 import requests
 from bs4 import BeautifulSoup
-import csv
 import sys
 import datetime
-import re
 import mysql.connector
 
 
