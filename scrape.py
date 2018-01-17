@@ -47,9 +47,11 @@ def main():
         dicts = [{}] + list(map(top_contributors, SNAPSHOTS))
         for i in range(len(dicts) - 1):
             print("On iteration", i, file=sys.stderr)
-            diff_and_print(dicts[i], dicts[i+1], SNAPSHOTS[i])
+            diff_and_print(dicts[i], dicts[i+1], snapshot_date(SNAPSHOTS[i]))
     elif sys.argv[1] == "db":
-        pass
+        diff_and_print(db_donors(),
+                       top_contributors("https://intelligence.org/topcontributors/"),
+                       datetime.date.today().strftime("%Y-%m-%d"))
     else:
         print_help()
 
@@ -93,7 +95,7 @@ def top_contributors(url):
     return contributors
 
 
-def diff_and_print(older, newer, newer_url):
+def diff_and_print(older, newer, newer_date):
     """Take two contributor lists, older and newer. Find the difference in
     donation amounts since older, and just print SQL insert lines for that
     difference."""
@@ -110,7 +112,7 @@ def diff_and_print(older, newer, newer_url):
         if diff > 0.01:
             # We have a new donation to process
             print(("    " if first else "    ,") +
-                  sql_tuple(donor, diff, newer_url))
+                  sql_tuple(donor, diff, newer_date))
             first = False
         elif diff < -0.01 and donor in newer:
             print("Amount in older exceeds amount in newer:",
@@ -132,12 +134,12 @@ def mysql_quote(x):
     return "'{}'".format(x)
 
 
-def sql_tuple(donor, amount, url):
+def sql_tuple(donor, amount, donation_date):
     return ("(" + ",".join([
         mysql_quote(donor),  # donor
         mysql_quote("Machine Intelligence Research Institute"),  # donee
         str(amount),  # amount
-        mysql_quote(snapshot_date(url)),  # donation_date
+        mysql_quote(donation_date),  # donation_date
         mysql_quote("year"),  # donation_date_precision
         mysql_quote("donee contributor list"),  # donation_date_basis
         mysql_quote("AI risk"),  # cause_area
