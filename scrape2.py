@@ -87,7 +87,7 @@ def top_donors(url):
     for table in soup.find_all("table"):
         for tr in table.find_all("tr"):
             cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
-            donor = cols[0]
+            donor = donor_normalized(cols[0])
             amount = cols[1].replace("$", "").replace(",", "")
 
             # Make sure each donor appears only once in the list
@@ -155,6 +155,12 @@ def snapshot_date(url):
     lst = url.split('/')
     date_part = lst[lst.index("web") + 1]
     return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
+
+
+def donor_normalized(x):
+    if x == "Johan Edstr\u0e23\u0e16m":
+        return "Johan Edström"
+    return x
 
 
 if __name__ == "__main__":
