@@ -31,12 +31,27 @@ SNAPSHOTS = [
 ]
 
 
+def print_help():
+    print("Please run with argument:\n  * 'fresh' to download each snapshot "
+          "and build a fresh SQL file; or\n  * 'db' to "
+          "download just the latest top donors page and query the donations\n"
+          "    database to build a diff since the last time this script "
+          "was run.\nExample: ./scrape.py db > out.sql", file=sys.stderr)
+
+
 def main():
-    # The empty dict is so that we add all donors from the first snapshot.
-    dicts = [{}] + list(map(top_contributors, SNAPSHOTS))
-    for i in range(len(dicts) - 1):
-        print("On iteration", i, file=sys.stderr)
-        diff_and_print(dicts[i], dicts[i+1], SNAPSHOTS[i])
+    if len(sys.argv) < 2:
+        print_help()
+    elif sys.argv[1] == "fresh":
+        # The empty dict is so that we add all donors from the first snapshot.
+        dicts = [{}] + list(map(top_contributors, SNAPSHOTS))
+        for i in range(len(dicts) - 1):
+            print("On iteration", i, file=sys.stderr)
+            diff_and_print(dicts[i], dicts[i+1], SNAPSHOTS[i])
+    elif sys.argv[1] == "db":
+        pass
+    else:
+        print_help()
 
 
 def db_donors():
