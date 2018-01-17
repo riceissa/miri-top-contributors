@@ -12,6 +12,7 @@ import mysql.connector
 IGNORED_DONORS = {
     "Open Philanthropy Project",
     "Gordon Irlam",
+    "Loren Merritt",
 }
 
 
