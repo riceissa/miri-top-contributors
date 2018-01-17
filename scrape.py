@@ -13,6 +13,7 @@ import mysql.connector
 # These are donors we track separately, so ignore them in this script.
 IGNORED_DONORS = {
     "Open Philanthropy Project",
+    "Gordon Irlam",
 }
 
 
