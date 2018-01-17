@@ -16,7 +16,18 @@ IGNORED_DONORS = {
 }
 
 
+SNAPSHOTS = [
+    "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/",
+]
+
+
 def main():
+    pass
+
+
+def db_donors():
     # Load up existing MIRI donations from our database so we know what has
     # happened since whenever we last updated MIRI donor info.
     cnx = mysql.connector.connect(user='issa', database='donations')
@@ -28,27 +39,41 @@ def main():
     existing_donors = {donor: float(amount) for donor, amount in cursor}
     cursor.close()
     cnx.close()
+    return existing_donors
 
     # Now get the up-to-date top contributors info.
     url = "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/"
     # url = "https://intelligence.org/topcontributors/"
+
+
+def top_contributors(url):
     response = requests.get(url,
                             headers={'User-Agent': 'Mozilla/5.0 '
                                      '(X11; Linux x86_64) AppleWebKit/537.36 '
                                      '(KHTML, like Gecko) '
                                      'Chrome/63.0.3239.132 Safari/537.36'})
     soup = BeautifulSoup(response.content, "lxml")
-    top_contributors = {}
+    contributors = {}
     for tbody in soup.find_all("tbody"):
         for tr in tbody.find_all("tr"):
             cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
             donor = cols[0]
             amount = cols[1].replace("$", "").replace(",", "")
-            assert donor not in top_contributors
-            top_contributors[donor] = float(amount)
 
-    all_donors = (set(existing_donors.keys()).union(top_contributors.keys())
-                                             .difference(IGNORED_DONORS))
+            # Make sure each donor appears only once in the list
+            assert donor not in contributors
+
+            contributors[donor] = float(amount)
+
+    return contributors
+
+
+def diff_and_print(older, newer):
+    """Take two contributor lists, older and newer. Find the difference in
+    donation amounts since older, and just print SQL insert lines for that
+    difference."""
+    all_donors = (set(older.keys()).union(newer.keys())
+                                   .difference(IGNORED_DONORS))
     first = True
     print("""insert into donations (donor, donee, amount, donation_date,
     donation_date_precision, donation_date_basis, cause_area, url,
@@ -56,12 +81,12 @@ def main():
     affected_regions) values""")
 
     for donor in all_donors:
-        diff = top_contributors.get(donor, 0) - existing_donors.get(donor, 0)
+        diff = newer.get(donor, 0) - older.get(donor, 0)
         if diff > 0.01:
             # We have a new donation to process
             print(("    " if first else "    ,") + sql_tuple(donor, diff))
             first = False
-        elif diff < -0.01 and donor in top_contributors:
+        elif diff < -0.01 and donor in newer:
             raise ValueError(("Amount in DLW database exceeds MIRI top "
                              "contributors amount", donor))
     print(";")
@@ -96,6 +121,12 @@ def sql_tuple(donor, amount):
         mysql_quote(""),  # affected_countries
         mysql_quote(""),  # affected_regions
     ]) + ")")
+
+
+def snapshot_date(url):
+    lst = url.split('/')
+    date_part = lst[lst.index("web") + 1]
+    return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
 
 
 if __name__ == "__main__":
