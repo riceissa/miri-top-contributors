@@ -17,14 +17,20 @@ IGNORED_DONORS = {
 
 
 SNAPSHOTS = [
-    "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
-    "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
+    # "https://web.archive.org/web/20170204024838/https://intelligence.org/topdonors/",
+    # "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
+    # "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20180117010054/https://intelligence.org/topcontributors/",
 ]
 
 
 def main():
-    pass
+    # The empty dict is so that we add all donors from the first snapshot.
+    dicts = [{}] + list(map(top_contributors, SNAPSHOTS))
+    for i in range(len(dicts) - 1):
+        print("On iteration", i, file=sys.stderr)
+        diff_and_print(dicts[i], dicts[i+1])
 
 
 def db_donors():
@@ -41,12 +47,9 @@ def db_donors():
     cnx.close()
     return existing_donors
 
-    # Now get the up-to-date top contributors info.
-    url = "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/"
-    # url = "https://intelligence.org/topcontributors/"
-
 
 def top_contributors(url):
+    print("Downloading", url, file=sys.stderr)
     response = requests.get(url,
                             headers={'User-Agent': 'Mozilla/5.0 '
                                      '(X11; Linux x86_64) AppleWebKit/537.36 '
@@ -65,6 +68,7 @@ def top_contributors(url):
 
             contributors[donor] = float(amount)
 
+    print("Has", len(contributors), "donors", file=sys.stderr)
     return contributors
 
 
