@@ -38,10 +38,6 @@ def main():
     db = db_donations()
     all_donors = sorted(set(x["donor"] for x in db)
                         .union(x["donor"] for x in web))
-    # The empty dict is so that we add all donors from the first snapshot.
-    # diff_and_print(db_donors(),
-    #                top_contributors("https://intelligence.org/topcontributors/"),
-    #                datetime.date.today().strftime("%Y-%m-%d"))
     for donor in all_donors:
         f = lambda x: x["donor"] == donor
         web_d = list(filter(f, web))
@@ -51,6 +47,7 @@ def main():
 
 def web_donations():
     donations = []
+    # The empty dict is so that we add all donors from the first snapshot.
     dicts = [{}] + list(map(top_donors, SNAPSHOTS))
     dates = ["2015-01-17"] + list(map(snapshot_date, SNAPSHOTS))
     for i in range(len(dicts) - 1):
