@@ -32,11 +32,19 @@ SNAPSHOTS = [
 
 
 def main():
+    web = web_donations()
+    db = db_donations()
+    all_donors = sorted(set(x["donor"] for x in db)
+                        .union(x["donor"] for x in web))
     # The empty dict is so that we add all donors from the first snapshot.
     # diff_and_print(db_donors(),
     #                top_contributors("https://intelligence.org/topcontributors/"),
     #                datetime.date.today().strftime("%Y-%m-%d"))
-    print(db_donations())
+    for donor in all_donors:
+        f = lambda x: x["donor"] == donor
+        web_d = list(filter(f, web))
+        db_d = list(filter(f, db))
+        print(donor, "\n    db:", db_d, "\n    web:", web_d)
 
 
 def web_donations():
@@ -58,7 +66,7 @@ def db_donations():
                       from donations
                       where donee='Machine Intelligence Research Institute';""")
     donations = [{"donor": donor, "amount": float(amount),
-                  "donation_date": donation_date}
+                  "donation_date": donation_date.strftime("%Y-%m-%d")}
                  for donor, amount, donation_date in cursor]
     cursor.close()
     cnx.close()
