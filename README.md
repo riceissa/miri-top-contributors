@@ -13,6 +13,9 @@ This script can do two things:
   database to see what new donations have been made since the last time the
   donations database was updated.
 
+`out.sql` is a sample output when running with the `fresh` argument, i.e.
+`./scrape.py fresh > out.sql`.
+
 ## License
 
 CC0.
