@@ -37,7 +37,8 @@ def main():
     web = web_donations()
     db = db_donations()
     all_donors = sorted(set(x["donor"] for x in db)
-                        .union(x["donor"] for x in web))
+                        .union(x["donor"] for x in web)
+                        .difference(IGNORED_DONORS))
     for donor in all_donors:
         f = lambda x: x["donor"] == donor
         web_d = list(filter(f, web))
