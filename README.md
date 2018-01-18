@@ -20,7 +20,7 @@ There are two scripts here:
   donations from the DLW database and the donations from the top donors page,
   so that you can compare which donations are tracked where. It looks like
   [this](https://gist.github.com/riceissa/2f213d7a58aa5edd6488ab69c4fd871d).
-  When run with the `sql` argument, it will SQL tuples of the donations
+  When run with the `sql` argument, it will output SQL tuples of the donations
   inferred from the top donors page snapshots. It looks like
   [this](https://gist.github.com/riceissa/0d04ce0584bd5fbe70fbe768faa23d18).
 
