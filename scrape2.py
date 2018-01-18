@@ -7,13 +7,7 @@ import sys
 import datetime
 import mysql.connector
 
-
-# These are donors we track separately, so ignore them in this script.
-IGNORED_DONORS = {
-    "Open Philanthropy Project",
-    "Gordon Irlam",
-    "Loren Merritt",
-}
+from util import *
 
 
 SNAPSHOTS = [
@@ -34,6 +28,11 @@ SNAPSHOTS = [
 
 
 def main():
+    try:
+        option = sys.argv[1]
+    except IndexError:
+        print("Please use 'by_donor' or 'sql' as arg 1", file=sys.stderr)
+        sys.exit()
     web = web_donations()
     db = db_donations()
     all_donors = sorted(set(x["donor"] for x in db)
@@ -43,10 +42,12 @@ def main():
         f = lambda x: x["donor"] == donor
         web_d = list(filter(f, web))
         db_d = list(filter(f, db))
-        # print(donor, "\n    db:", db_d, "\n    web:", web_d)
-        for donation in web_d:
-            print(sql_tuple(donor, donation["amount"],
-                            donation["donation_date"], donation["url"]))
+        if option == "by_donor":
+            print(donor, "\n    db:", db_d, "\n    web:", web_d)
+        else:
+            for donation in web_d:
+                print(sql_tuple(donor, donation["amount"],
+                                donation["donation_date"], donation["url"]))
 
 
 def web_donations():
@@ -78,30 +79,6 @@ def db_donations():
     return donations
 
 
-def top_donors(url):
-    print("Downloading", url, file=sys.stderr)
-    response = requests.get(url,
-                            headers={'User-Agent': 'Mozilla/5.0 '
-                                     '(X11; Linux x86_64) AppleWebKit/537.36 '
-                                     '(KHTML, like Gecko) '
-                                     'Chrome/63.0.3239.132 Safari/537.36'})
-    soup = BeautifulSoup(response.content, "lxml")
-    donors = {}
-    for table in soup.find_all("table"):
-        for tr in table.find_all("tr"):
-            cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
-            donor = donor_normalized(cols[0])
-            amount = cols[1].replace("$", "").replace(",", "")
-
-            # Make sure each donor appears only once in the list
-            assert donor not in donors
-
-            donors[donor] = float(amount)
-
-    print("Has", len(donors), "donors", file=sys.stderr)
-    return donors
-
-
 def diff(older, older_date, newer, newer_date, donation_url):
     """Take two cumulative contributor lists, older and newer. Find the
     difference in donation amounts since older, and return a list of donations
@@ -127,49 +104,10 @@ def diff(older, older_date, newer, newer_date, donation_url):
     return result
 
 
-def mysql_quote(x):
-    '''
-    Quote the string x using MySQL quoting rules. If x is the empty string,
-    return "NULL". Probably not safe against maliciously formed strings, but
-    whatever; our input is fixed and from a basically trustable source..
-    '''
-    if not x:
-        return "NULL"
-    x = x.replace("\\", "\\\\")
-    x = x.replace("'", "''")
-    x = x.replace("\n", "\\n")
-    return "'{}'".format(x)
-
-
-def sql_tuple(donor, amount, donation_date, donation_url):
-    return ("(" + ",".join([
-        mysql_quote(donor),  # donor
-        mysql_quote("Machine Intelligence Research Institute"),  # donee
-        str(amount),  # amount
-        mysql_quote(donation_date),  # donation_date
-        mysql_quote("year"),  # donation_date_precision
-        mysql_quote("donee contributor list"),  # donation_date_basis
-        mysql_quote("AI risk"),  # cause_area
-        mysql_quote(donation_url),  # url
-        mysql_quote(""),  # donor_cause_area_url
-        mysql_quote(""),  # notes
-        mysql_quote(""),  # affected_countries
-        mysql_quote(""),  # affected_regions
-    ]) + ")")
-
-
 def snapshot_date(url):
     lst = url.split('/')
     date_part = lst[lst.index("web") + 1]
     return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
-
-
-def donor_normalized(x):
-    if x == "Johan Edstr\u0e23\u0e16m":
-        return "Johan Edström"
-    if x == "Marius van Voorden (via Bitcoin)":
-        return "Marius van Voorden"
-    return x
 
 
 if __name__ == "__main__":
