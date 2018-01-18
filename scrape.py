@@ -16,44 +16,10 @@ IGNORED_DONORS = {
 }
 
 
-SNAPSHOTS = [
-    "https://web.archive.org/web/20150117213932/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20150507195856/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20150717072918/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20160115172820/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20160226145912/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20160717181643/https://intelligence.org/donortools/topdonors.php",
-    "https://web.archive.org/web/20170204024838/https://intelligence.org/topdonors/",
-    "https://web.archive.org/web/20170412043722/https://intelligence.org/topcontributors/",
-    "https://web.archive.org/web/20170627074344/https://intelligence.org/topcontributors/",
-    "https://web.archive.org/web/20170929195133/https://intelligence.org/topcontributors/",
-    "https://web.archive.org/web/20180117010054/https://intelligence.org/topcontributors/",
-]
-
-
-def print_help():
-    print("Please run with argument:\n  * 'fresh' to download each snapshot "
-          "and build a fresh SQL file; or\n  * 'db' to "
-          "download just the latest top donors page and query the donations\n"
-          "    database to build a diff since the last time this script "
-          "was run.\nExample: ./scrape.py db > out.sql", file=sys.stderr)
-
-
 def main():
-    if len(sys.argv) < 2:
-        print_help()
-    elif sys.argv[1] == "fresh":
-        # The empty dict is so that we add all donors from the first snapshot.
-        dicts = [{}] + list(map(top_contributors, SNAPSHOTS))
-        for i in range(len(dicts) - 1):
-            print("On iteration", i, file=sys.stderr)
-            diff_and_print(dicts[i], dicts[i+1], snapshot_date(SNAPSHOTS[i]))
-    elif sys.argv[1] == "db":
-        diff_and_print(db_donors(),
-                       top_contributors("https://intelligence.org/topcontributors/"),
-                       datetime.date.today().strftime("%Y-%m-%d"))
-    else:
-        print_help()
+    diff_and_print(db_donors(),
+                   top_contributors("https://intelligence.org/topcontributors/"),
+                   datetime.date.today().strftime("%Y-%m-%d"))
 
 
 def db_donors():
@@ -149,12 +115,6 @@ def sql_tuple(donor, amount, donation_date):
         mysql_quote(""),  # affected_countries
         mysql_quote(""),  # affected_regions
     ]) + ")")
-
-
-def snapshot_date(url):
-    lst = url.split('/')
-    date_part = lst[lst.index("web") + 1]
-    return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
 
 
 if __name__ == "__main__":
