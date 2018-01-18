@@ -39,10 +39,9 @@ def diff_and_print(older, newer, newer_date):
     all_donors = (set(older.keys()).union(newer.keys())
                                    .difference(IGNORED_DONORS))
     first = True
-    print("""insert into donations (donor, donee, amount, donation_date,
-    donation_date_precision, donation_date_basis, cause_area, url,
-    donor_cause_area_url, notes, affected_countries,
-    affected_regions) values""")
+    print("""insert into donations(donor,donee,amount,"""
+          """donation_date,donation_date_precision,donation_date_basis,"""
+          """cause_area,url,notes) values""")
 
     for donor in sorted(all_donors):
         diff = newer.get(donor, 0) - older.get(donor, 0)
