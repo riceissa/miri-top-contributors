@@ -43,7 +43,10 @@ def main():
         f = lambda x: x["donor"] == donor
         web_d = list(filter(f, web))
         db_d = list(filter(f, db))
-        print(donor, "\n    db:", db_d, "\n    web:", web_d)
+        # print(donor, "\n    db:", db_d, "\n    web:", web_d)
+        for donation in web_d:
+            print(sql_tuple(donor, donation["amount"],
+                            donation["donation_date"], donation["url"]))
 
 
 def web_donations():
@@ -53,7 +56,8 @@ def web_donations():
     dates = ["2015-01-17"] + list(map(snapshot_date, SNAPSHOTS))
     for i in range(len(dicts) - 1):
         print("On iteration", i, file=sys.stderr)
-        donations.extend(diff(dicts[i], dates[i], dicts[i+1], dates[i+1]))
+        donations.extend(diff(dicts[i], dates[i], dicts[i+1], dates[i+1],
+                              SNAPSHOTS[i]))
     return donations
 
 
@@ -62,12 +66,13 @@ def db_donations():
     # already covered.
     cnx = mysql.connector.connect(user='issa', database='donations')
     cursor = cnx.cursor()
-    cursor.execute("""select donor,amount,donation_date
+    cursor.execute("""select donor,amount,donation_date,url
                       from donations
                       where donee='Machine Intelligence Research Institute';""")
     donations = [{"donor": donor, "amount": float(amount),
-                  "donation_date": donation_date.strftime("%Y-%m-%d")}
-                 for donor, amount, donation_date in cursor]
+                  "donation_date": donation_date.strftime("%Y-%m-%d"),
+                  "url": url}
+                 for donor, amount, donation_date, url in cursor]
     cursor.close()
     cnx.close()
     return donations
@@ -97,7 +102,7 @@ def top_donors(url):
     return donors
 
 
-def diff(older, older_date, newer, newer_date):
+def diff(older, older_date, newer, newer_date, donation_url):
     """Take two cumulative contributor lists, older and newer. Find the
     difference in donation amounts since older, and return a list of donations
     that must have taken place."""
@@ -109,14 +114,16 @@ def diff(older, older_date, newer, newer_date):
         if diff_amount > 0.01:
             # We have a new donation to process
             result.append({"donor": donor, "amount": diff_amount,
-                           "donation_date": newer_date})
+                           "donation_date": newer_date,
+                           "url": donation_url})
         elif diff_amount < -0.01:
             print("Amount in older exceeds amount in newer: {} {} ({}) > {} ({})"
                   .format(donor, older.get(donor, 0), older_date,
                           newer.get(donor, 0), newer_date),
                   file=sys.stderr)
             result.append({"donor": donor, "amount": diff_amount,
-                           "donation_date": newer_date})
+                           "donation_date": newer_date,
+                           "url": donation_url})
     return result
 
 
@@ -134,7 +141,7 @@ def mysql_quote(x):
     return "'{}'".format(x)
 
 
-def sql_tuple(donor, amount, donation_date):
+def sql_tuple(donor, amount, donation_date, donation_url):
     return ("(" + ",".join([
         mysql_quote(donor),  # donor
         mysql_quote("Machine Intelligence Research Institute"),  # donee
@@ -143,7 +150,7 @@ def sql_tuple(donor, amount, donation_date):
         mysql_quote("year"),  # donation_date_precision
         mysql_quote("donee contributor list"),  # donation_date_basis
         mysql_quote("AI risk"),  # cause_area
-        mysql_quote("https://intelligence.org/topcontributors/"),  # url
+        mysql_quote(donation_url),  # url
         mysql_quote(""),  # donor_cause_area_url
         mysql_quote(""),  # notes
         mysql_quote(""),  # affected_countries
