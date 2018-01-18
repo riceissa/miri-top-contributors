@@ -114,6 +114,8 @@ def diff(older, older_date, newer, newer_date):
                   .format(donor, older.get(donor, 0), older_date,
                           newer.get(donor, 0), newer_date),
                   file=sys.stderr)
+            result.append({"donor": donor, "amount": diff_amount,
+                           "donation_date": newer_date})
     return result
 
 
