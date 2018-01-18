@@ -34,14 +34,16 @@ def main():
         print("Please use 'by_donor' or 'sql' as arg 1", file=sys.stderr)
         sys.exit()
     web = web_donations()
-    db = db_donations()
+    if option == "by_donor":
+        db = db_donations()
     all_donors = sorted(set(x["donor"] for x in db)
                         .union(x["donor"] for x in web)
                         .difference(IGNORED_DONORS))
     for donor in all_donors:
         f = lambda x: x["donor"] == donor
         web_d = list(filter(f, web))
-        db_d = list(filter(f, db))
+        if option == "by_donor":
+            db_d = list(filter(f, db))
         if option == "by_donor":
             print(donor, "\n    db:", db_d, "\n    web:", web_d)
         else:
