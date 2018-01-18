@@ -38,8 +38,6 @@ def sql_tuple(donor, amount, donation_date, donation_url):
         mysql_quote(donation_url),  # url
         mysql_quote(""),  # donor_cause_area_url
         mysql_quote(""),  # notes
-        mysql_quote(""),  # affected_countries
-        mysql_quote(""),  # affected_regions
     ]) + ")")
 
 

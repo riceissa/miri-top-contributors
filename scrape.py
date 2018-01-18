@@ -10,9 +10,10 @@ import mysql.connector
 from util import *
 
 
+URL = "https://intelligence.org/topcontributors/"
+
 def main():
-    diff_and_print(db_donors(),
-                   top_donors("https://intelligence.org/topcontributors/"),
+    diff_and_print(db_donors(), top_donors(URL),
                    datetime.date.today().strftime("%Y-%m-%d"))
 
 
@@ -48,8 +49,7 @@ def diff_and_print(older, newer, newer_date):
         if diff > 0.01:
             # We have a new donation to process
             print(("    " if first else "    ,") +
-                  sql_tuple(donor, diff, newer_date,
-                            "https://intelligence.org/topcontributors/"))
+                  sql_tuple(donor, diff, newer_date, URL))
             first = False
         elif diff < -0.01 and donor in newer:
             print("Amount in older exceeds amount in newer:",
