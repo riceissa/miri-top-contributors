@@ -26,11 +26,16 @@ def db_donors():
                       from donations where
                       donee='Machine Intelligence Research Institute'
                       group by donor;""")
-    existing_donors = {donor: float(amount) for donor, amount in cursor}
+    existing_donors = {donor: conv_float(amount) for donor, amount in cursor}
     cursor.close()
     cnx.close()
     return existing_donors
 
+
+def conv_float(x):
+    if x is None:
+        return 0
+    return float(x)
 
 def diff_and_print(older, newer, newer_date):
     """Take two contributor lists, older and newer. Find the difference in
