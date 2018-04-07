@@ -34,7 +34,7 @@ def sql_tuple(donor, amount, donation_date, donation_url):
         mysql_quote(donation_date),  # donation_date
         mysql_quote("year"),  # donation_date_precision
         mysql_quote("donee contributor list"),  # donation_date_basis
-        mysql_quote("AI risk"),  # cause_area
+        mysql_quote("AI safety"),  # cause_area
         mysql_quote(donation_url),  # url
         mysql_quote(""),  # notes
     ]) + ")")
