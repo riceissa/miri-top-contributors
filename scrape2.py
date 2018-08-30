@@ -11,6 +11,13 @@ from util import *
 
 
 SNAPSHOTS = [
+    "https://web.archive.org/web/20120719220051/http://singularity.org:80/topdonors/",
+    "https://web.archive.org/web/20120918094656/http://singularity.org:80/topdonors/",
+    "https://web.archive.org/web/20121019075109/http://singularity.org:80/topdonors/",
+    "https://web.archive.org/web/20121118064729/http://singularity.org:80/topdonors/",
+    "https://web.archive.org/web/20130115144542/http://singularity.org/topdonors/",
+    "http://archive.today/2013.10.21-235551/http://intelligence.org/topdonors/",
+    "http://archive.today/2014.10.10-021359/http://intelligence.org/topdonors/",
     "https://web.archive.org/web/20150117213932/https://intelligence.org/donortools/topdonors.php",
     "https://web.archive.org/web/20150507195856/https://intelligence.org/donortools/topdonors.php",
     "https://web.archive.org/web/20150717072918/https://intelligence.org/donortools/topdonors.php",
@@ -36,6 +43,8 @@ def main():
     web = web_donations()
     if option == "by_donor":
         db = db_donations()
+    else:
+        db = []
     all_donors = sorted(set(x["donor"] for x in db)
                         .union(x["donor"] for x in web)
                         .difference(IGNORED_DONORS))
@@ -108,8 +117,13 @@ def diff(older, older_date, newer, newer_date, donation_url):
 
 def snapshot_date(url):
     lst = url.split('/')
-    date_part = lst[lst.index("web") + 1]
-    return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
+    if "web.archive.org" in lst:
+        date_part = lst[lst.index("web") + 1]
+        return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
+    else:
+        # archive.is
+        date_part = lst[lst.index("archive.today") + 1]
+        return date_part[0:10].replace(".", "-")
 
 
 if __name__ == "__main__":

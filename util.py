@@ -50,15 +50,20 @@ def top_donors(url):
     soup = BeautifulSoup(response.content, "lxml")
     donors = {}
     for table in soup.find_all("table"):
-        for tr in table.find_all("tr"):
-            cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
-            donor = donor_normalized(cols[0])
-            amount = cols[1].replace("$", "").replace(",", "")
+        # There might be other tables on the page that aren't the top-donors
+        # table, so make sure the second column of the first row has a "$" sign
+        # in it.
+        first_row_cols = table.find("tr").find_all("td")
+        if len(first_row_cols) == 2 and "$" in first_row_cols[1].text.strip():
+            for tr in table.find_all("tr"):
+                cols = list(map(lambda x: x.text.strip(), tr.find_all("td")))
+                donor = donor_normalized(cols[0])
+                amount = cols[1].replace("$", "").replace(",", "")
 
-            # Make sure each donor appears only once in the list
-            assert donor not in donors
+                # Make sure each donor appears only once in the list
+                assert donor not in donors
 
-            donors[donor] = float(amount)
+                donors[donor] = float(amount)
 
     print("Has", len(donors), "donors", file=sys.stderr)
     return donors
