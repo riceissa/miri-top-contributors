@@ -70,6 +70,8 @@ def top_donors(url):
 
 
 def donor_normalized(x):
+    if x == "Johan Edstr\u00c3\u00b6m":
+        return "Johan Edström"
     if x == "Johan Edstr\u0e23\u0e16m":
         return "Johan Edström"
     if x == "Marius van Voorden (via Bitcoin)":
