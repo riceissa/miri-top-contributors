@@ -31,6 +31,8 @@ SNAPSHOTS = [
     "https://web.archive.org/web/20171003083300/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20171223071315/https://intelligence.org/topcontributors/",
     "https://web.archive.org/web/20180117010054/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20180407192941/https://intelligence.org/topcontributors/",
+    "https://web.archive.org/web/20180816004558/https://intelligence.org/topcontributors/",
 ]
 
 
@@ -65,7 +67,7 @@ def web_donations():
     donations = []
     # The empty dict is so that we add all donors from the first snapshot.
     dicts = [{}] + list(map(top_donors, SNAPSHOTS))
-    dates = ["2015-01-17"] + list(map(snapshot_date, SNAPSHOTS))
+    dates = [snapshot_date(SNAPSHOTS[0])] + list(map(snapshot_date, SNAPSHOTS))
     for i in range(len(dicts) - 1):
         print("On iteration", i, file=sys.stderr)
         donations.extend(diff(dicts[i], dates[i], dicts[i+1], dates[i+1],
