@@ -40,14 +40,20 @@ def sql_tuple(donor, amount, donation_date, donation_url):
     ]) + ")")
 
 
-def top_donors(url):
-    print("Downloading", url, file=sys.stderr)
-    response = requests.get(url,
-                            headers={'User-Agent': 'Mozilla/5.0 '
-                                     '(X11; Linux x86_64) AppleWebKit/537.36 '
-                                     '(KHTML, like Gecko) '
-                                     'Chrome/63.0.3239.132 Safari/537.36'})
-    soup = BeautifulSoup(response.content, "lxml")
+def top_donors(url, use_local_snapshots=False):
+    if use_local_snapshots:
+        filename = "snapshots/" + snapshot_date(url) + ".html"
+        print("Using local snapshot", filename, file=sys.stderr)
+        f = open(filename, "rb")
+        soup = BeautifulSoup(f, "lxml")
+    else:
+        print("Downloading", url, file=sys.stderr)
+        response = requests.get(url,
+                                headers={'User-Agent': 'Mozilla/5.0 '
+                                         '(X11; Linux x86_64) AppleWebKit/537.36 '
+                                         '(KHTML, like Gecko) '
+                                         'Chrome/63.0.3239.132 Safari/537.36'})
+        soup = BeautifulSoup(response.content, "lxml")
     donors = {}
     for table in soup.find_all("table"):
         # There might be other tables on the page that aren't the top-donors
@@ -65,6 +71,9 @@ def top_donors(url):
 
                 donors[donor] = float(amount)
 
+    if use_local_snapshots:
+        f.close()
+
     print("Has", len(donors), "donors", file=sys.stderr)
     return donors
 
@@ -79,3 +88,14 @@ def donor_normalized(x):
     if x == "Adam J. Weissman":
         return "Adam Weissman"
     return x
+
+
+def snapshot_date(url):
+    lst = url.split('/')
+    if "web.archive.org" in lst:
+        date_part = lst[lst.index("web") + 1]
+        return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
+    else:
+        # archive.is
+        date_part = lst[lst.index("archive.today") + 1]
+        return date_part[0:10].replace(".", "-")

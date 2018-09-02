@@ -66,7 +66,7 @@ def main():
 def web_donations():
     donations = []
     # The empty dict is so that we add all donors from the first snapshot.
-    dicts = [{}] + list(map(top_donors, SNAPSHOTS))
+    dicts = [{}] + list(map(lambda x: top_donors(x, use_local_snapshots=True), SNAPSHOTS))
     dates = [snapshot_date(SNAPSHOTS[0])] + list(map(snapshot_date, SNAPSHOTS))
     for i in range(len(dicts) - 1):
         print("On iteration", i, file=sys.stderr)
@@ -115,17 +115,6 @@ def diff(older, older_date, newer, newer_date, donation_url):
                            "donation_date": newer_date,
                            "url": donation_url})
     return result
-
-
-def snapshot_date(url):
-    lst = url.split('/')
-    if "web.archive.org" in lst:
-        date_part = lst[lst.index("web") + 1]
-        return date_part[0:4] + "-" + date_part[4:6] + "-" + date_part[6:8]
-    else:
-        # archive.is
-        date_part = lst[lst.index("archive.today") + 1]
-        return date_part[0:10].replace(".", "-")
 
 
 if __name__ == "__main__":
