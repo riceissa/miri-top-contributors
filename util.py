@@ -87,6 +87,12 @@ def donor_normalized(x):
         return "Marius van Voorden"
     if x == "Adam J. Weissman":
         return "Adam Weissman"
+    if x == "Nick Tarleton":
+        return "Nicolas Tarleton"
+    if x == "Riikonen Aleksei":
+        return "Aleksei Riikonen"
+    if x == "Simon Safar":
+        return "Simon Sáfár"
     return x
 
 
