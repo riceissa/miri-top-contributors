@@ -63,6 +63,18 @@ def main():
                                 donation["donation_date"], donation["url"]))
 
 
+def merge_negative_donations(donation_list):
+    """Merge donations until there are no negative donations in the list.
+    Return a new list of donations.
+
+    donation_list is assume to be donations of only a single donor.
+
+    This is not implemented because so far I've been doing this process by
+    hand."""
+    return None
+
+
+
 def web_donations():
     donations = []
     # The empty dict is so that we add all donors from the first snapshot.
